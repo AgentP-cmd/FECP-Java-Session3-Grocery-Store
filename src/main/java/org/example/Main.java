@@ -1,12 +1,13 @@
 package org.example;
+
 import java.util.*;
 
 public class Main {
-    private static boolean isRunning = true;
+    private static final Map<String, Integer> map = new HashMap<>();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        Map<String, Integer> map = new HashMap<>();
+        boolean isRunning = true;
 
         while (isRunning) {
             System.out.println("\n=== Grocery Inventory Menu ===");
@@ -22,78 +23,82 @@ public class Main {
             sc.nextLine();
 
             switch (option) {
-                case 1 -> viewInventory(map);
-                case 2 -> addProduct(sc,map);
-                case 3 -> checkProduct(sc, map);
-                case 4 -> updateProduct(sc, map);
-                case 5 -> removeProduct(sc, map);
+                case 1 -> System.out.println(viewInventory());
+                case 2 -> {
+                    System.out.print("Enter Product Name: ");
+                    String prodName = sc.nextLine();
+                    System.out.print("Enter Quantity: ");
+                    int prodQuantity = sc.nextInt();
+                    sc.nextLine();
+                    System.out.println(addProduct(prodName, prodQuantity));
+                }
+                case 3 -> {
+                    System.out.print("Enter Product Name to Check: ");
+                    String prodCheck = sc.nextLine();
+                    System.out.println(checkProduct(prodCheck));
+                }
+                case 4 -> {
+                    System.out.print("Enter Product Name to Update: ");
+                    String prodUpdate = sc.nextLine();
+                    System.out.print("Enter New Quantity: ");
+                    int prodQuantityUpdate = sc.nextInt();
+                    sc.nextLine();
+                    System.out.println(updateProduct(prodUpdate, prodQuantityUpdate));
+                }
+                case 5 -> {
+                    System.out.print("Enter Product Name to Remove: ");
+                    String prodRemove = sc.nextLine();
+                    System.out.println(removeProduct(prodRemove));
+                }
                 case 6 -> {
                     System.out.println("Exiting system...");
                     System.out.println("=== Thank You!! ===");
                     isRunning = false;
-                    return;
                 }
                 default -> System.out.println("Invalid choice.");
             }
-            }
         }
-    private static void viewInventory(Map<String, Integer> map) {
-       if (map.isEmpty()){
-           System.out.println("No Products Yet.");
-       }else {
-           System.out.println("=== Current Inventory ===");
-           for (Map.Entry<String, Integer> entry : map.entrySet()){
-               System.out.println(entry.getKey() + " - " + entry.getValue());
-           }
-       }
     }
 
-    private static void addProduct(Scanner sc, Map<String, Integer> map) {
-        System.out.print("Enter Product Name: ");
-        String prodName = sc.nextLine();
-        System.out.print("Enter Quantity: ");
-        int prodQuantity = sc.nextInt();
+    public static String viewInventory() {
+        if (map.isEmpty()) return "No Products Yet.";
+        StringBuilder sb = new StringBuilder("=== Current Inventory ===\n");
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            sb.append(entry.getKey()).append(" - ").append(entry.getValue()).append("\n");
+        }
+        return sb.toString().trim();
+    }
 
+    public static String addProduct(String prodName, int prodQuantity) {
+        if (prodName == null || prodName.isBlank()) return "Invalid product name.";
+        if (prodQuantity < 0) return "Quantity cannot be negative.";
         map.put(prodName, prodQuantity);
-        System.out.println("Product Added!");
-
-
+        return "Product added: " + prodName + " (" + prodQuantity + ")";
     }
 
-    private static void checkProduct(Scanner sc, Map<String, Integer> map) {
-        System.out.print("Enter Product name to check: ");
-        String prodCheck = sc.nextLine();
-        if (map.containsKey(prodCheck)){
-            Integer result = map.get(prodCheck);
-            System.out.println(prodCheck + " is in stock:" + result );
-        } else {
-            System.out.println("That product does not exist!");
+    public static String checkProduct(String prodCheck) {
+        if (map.containsKey(prodCheck)) {
+            return prodCheck + " is in stock: " + map.get(prodCheck);
         }
+        return "Product not found.";
     }
 
-    private static void updateProduct(Scanner sc, Map<String, Integer> map) {
-        System.out.print("Enter Product name to update: ");
-        String prodUpdate = sc.nextLine();
-        if (map.containsKey(prodUpdate)){
-            System.out.print("Enter new stock quantity: ");
-            int prodQuantityUpdate = sc.nextInt();
-            map.put(prodUpdate,prodQuantityUpdate);
-            System.out.println("Stock Updated!");
-        }
-
+    public static String updateProduct(String prodUpdate, int prodQuantityUpdate) {
+        if (!map.containsKey(prodUpdate)) return "Product not found.";
+        if (prodQuantityUpdate < 0) return "Invalid quantity.";
+        map.put(prodUpdate, prodQuantityUpdate);
+        return "Stock updated: " + prodUpdate + " (" + prodQuantityUpdate + ")";
     }
 
-    private static void removeProduct(Scanner sc, Map<String, Integer> map) {
-        System.out.print("Enter Product name to remove: ");
-        String prodRemove = sc.nextLine();
-        if (map.containsKey(prodRemove)){
+    public static String removeProduct(String prodRemove) {
+        if (map.containsKey(prodRemove)) {
             map.remove(prodRemove);
-            System.out.println("Product Removed.");
-        } else {
-            System.out.println("Product does not exist!");
+            return "Product removed: " + prodRemove;
         }
-
-
+        return "Product not found.";
     }
 
+    public static void resetInventory() {
+        map.clear();
+    }
 }
